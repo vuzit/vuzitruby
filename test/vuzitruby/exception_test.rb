@@ -10,7 +10,6 @@ class ExceptionTest < Test::Unit::TestCase
     Vuzit::Service.private_key = 'does_not_matter'
     
     begin
-      # TODO: Switch to a find query
       doc = Vuzit::Document.destroy('5')
     rescue Vuzit::Exception => ex
       assert_equal 414, ex.code
@@ -19,12 +18,10 @@ class ExceptionTest < Test::Unit::TestCase
   end
 
   def test_invalid_signature
-    # TODO: Switch to a key that is not yours
     Vuzit::Service.public_key = @public_key
     Vuzit::Service.private_key = 'invalid_key'
     
     begin
-      # TODO: Switch to a find query
       doc = Vuzit::Document.destroy("5")
     rescue Vuzit::Exception => ex
       assert_equal 412, ex.code
@@ -33,7 +30,6 @@ class ExceptionTest < Test::Unit::TestCase
   end
 
   def test_destroy_document_does_not_exist
-    # TODO: Switch to a key that is not yours
     Vuzit::Service.public_key = @public_key
     Vuzit::Service.private_key = @private_key
     begin

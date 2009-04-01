@@ -1,5 +1,6 @@
 require 'rexml/document'
 require 'uri'
+require 'cgi'
 
 class Hash #:nodoc:all
    # Taken from Rails, with appreciation to DHH
@@ -48,7 +49,7 @@ module Vuzit
     #  result = Vuzit::Document.destroy("DOCUMENT_ID")
     def self.destroy(id)
       timestamp = Time.now
-      sig = Vuzit::Service::get_signature('destroy', id, timestamp)
+      sig = CGI.escape(Vuzit::Service::get_signature('destroy', id, timestamp))
 
       # Create the connection
       uri = URI.parse(Vuzit::Service.service_url)
@@ -95,7 +96,7 @@ module Vuzit
     #  puts doc.title
     def self.find(id)
       timestamp = Time.now
-      sig = Vuzit::Service::get_signature('show', id, timestamp)
+      sig = CGI.escape(Vuzit::Service::get_signature('show', id, timestamp))
 
       # Create the connection
       uri = URI.parse(Vuzit::Service.service_url)
@@ -152,9 +153,6 @@ module Vuzit
     #  doc = Vuzit::Document.upload("c:/path/to/document.pdf")
     #  puts doc.id
     def self.upload(file, options = {})
-      # TODO: Add a case for file if it is one type or another?
-      #       Or should you use file and stream?
-
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
       timestamp = Time.now
@@ -169,7 +167,6 @@ module Vuzit
       else
         fields[:secure] = '1'
       end
-      #fields[:secure] = options[:secure] ? options[:secure] : '1'
 
       fields[:signature] = sig
       fields[:timestamp] = timestamp.to_i
@@ -218,6 +215,7 @@ module Vuzit
       $stderr.puts(text) if Vuzit::Service::debug == true
     end
 
+    # Makes a HTTP POST.  
     def self.send_request(method, fields = {})
       # See if method is given
       raise ArgumentError, "Method should be given" if method.nil? || method.empty?
@@ -243,8 +241,6 @@ module Vuzit
 
       request = Net::HTTP::Post.new('/documents')
       request.multipart_params = fields
-
-      #debug("AAAAA #{uri.host} #{uri.port}")
 
       tries = TRIES
       begin

@@ -83,7 +83,7 @@ module Vuzit
     end
 
     # Switch this to _true_ if you would like to see debug messages in the 
-    # output
+    # output. 
     def self.debug=(value)
       @@debug = value
     end
@@ -104,10 +104,10 @@ module Vuzit
     #  timestamp = Time.now
     #  sig = Vuzit::Service.get_signature("show", "DOCUMENT_ID", timestamp)
     def self.get_signature(service, id = '', time = nil)
-      # TODO: Throw error if nil private or public keys
+      if Vuzit::Service.public_key == nil || Vuzit::Service.private_key == nil
+        raise Vuzit::Exception.new("The public_key or private_key variables are nil")
+      end
       time = (time == nil) ? Time.now.to_i : time.to_i
-      #time = (time == nil) ? Time.now : time
-      #puts "TIME: #{time}"
 
       if @@public_key == nil
         raise Vuzit::Exception.new("Vuzit::Service.public_key not set")
@@ -119,18 +119,9 @@ module Vuzit
 
       msg = "#{service}#{id}#{@@public_key}#{time}"
       hmac = hmac_sha1(@@private_key, msg)
-      final = Base64::encode64(hmac).chomp
+      result = Base64::encode64(hmac).chomp
 
-      # TODO: Is this escaping necessary?  I did this elsewhere
-      #       in the PHP version
-
-      return (service == 'create') ? final : CGI.escape(final)
-
-      #if service == 'create'
-        #return final
-      #else
-        #return CGI.escape(final)
-      #end
+      return result
     end
 
     private

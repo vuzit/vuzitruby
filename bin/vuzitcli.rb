@@ -19,6 +19,7 @@ class ParseOptions
     options.secure = true
     options.delete = nil
     options.load = nil
+    options.url = nil
     options.verbose = false
     
     opts = OptionParser.new do |opts|
@@ -68,6 +69,10 @@ class ParseOptions
       opts.separator ""
       opts.separator "General options"
 
+      opts.on("-u", "--url", "Sets the service URL") do
+        options.verbose = true
+      end
+
       opts.on("-v", "--verbose", "Prints more messages") do
         options.verbose = true
       end
@@ -103,6 +108,10 @@ end
 
 Vuzit::Service.public_key = options.public_key
 Vuzit::Service.private_key = options.private_key
+
+if options.url != nil
+  Vuzit::Service.service_url = options.url
+end
 
 if options.verbose == true
   Vuzit::Service.debug = true
