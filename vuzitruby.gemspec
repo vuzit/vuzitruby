@@ -1,5 +1,9 @@
 # -*- encoding: utf-8 -*-
+#
+# Gem building script for Github.  Every time the version is updated the 
+# gem will be built.
 
+# Gem building task
 Gem::Specification.new do |s|
   s.name = 'vuzitruby'
   s.version = "1.0.0"

@@ -2,8 +2,11 @@
 module Vuzit
   # Vuzit library exception handler class. 
   class Exception < StandardError
-    attr_reader :message # Error message
-    attr_reader :code # Error code
+    # The web service error message
+    attr_reader :message
+
+    # The web service error code
+    attr_reader :code
 
     # Constructor for errors.  
     #

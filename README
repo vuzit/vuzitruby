@@ -1,11 +1,11 @@
-= VuzitRuby, Vuzit Web Services library for PHP
+= VuzitRuby - Vuzit Web Services library
 
 == INTRODUCTION
 
 This is a library that allows developers to directly access the Vuzit Web 
-Service API through a simple PHP script:
+Service API through a simple Ruby script:
 
-  http://vuzit.com/developer/documents_api
+http://vuzit.com/developer/documents_api
 
 Below is a basic upload example:
 
@@ -24,7 +24,7 @@ private keys with the keys from your account.
 
 == SETUP
 
-* The client library is a RubyGem called *vuzitruby*. To install, type:
+The client library is a RubyGem called *vuzitruby*. To install, type:
 
   sudo gem install vuzitruby
 
@@ -44,8 +44,6 @@ Find Document Example - how to load a document:
   Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
   Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
 
-  doc = Vuzit::Document.upload("c:/path/to/document.pdf")
-
   doc = Vuzit::Document::find("DOCUMENT_ID")
   puts "Document id: " + doc.id
   puts "Document title: " + doc.title
@@ -56,8 +54,6 @@ Delete (destroy) Document Example:
 
   Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
   Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
-
-  doc = Vuzit::Document.upload("c:/path/to/document.pdf")
 
   doc = Vuzit::Document::destroy("DOCUMENT_ID")
 
@@ -97,13 +93,9 @@ Upload and View with the JavaScript API Example for a Rails RHTML file:
 
 == LICENSE
 
-Copyright (c) 2009 Brent Matzelle, Vuzit LLC 
-
-Portions by copyright (c) 2007-2008 The Scribd Team
-
 Released under the MIT license: 
 
-  http://www.opensource.org/licenses/mit-license.php
+http://www.opensource.org/licenses/mit-license.php
 
 This means you can use it in proprietary products. See LICENSE file.
 

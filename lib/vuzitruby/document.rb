@@ -17,17 +17,29 @@ module Vuzit
   # Class for uploading, loading, and deleting documents using the Vuzit Web
   # Service API: http://vuzit.com/developer/documents_api
   #
-  # To use this class you need to sign up for Vuzit first: 
-  #
-  #   http://vuzit.com/signup
+  # To use this class you need to {sign up}[http://vuzit.com/signup] for 
+  # Vuzit first.
   class Document
-    attr_accessor :id # The document ID
-    attr_accessor :title # Title document title
-    attr_accessor :subject # The document subject
-    attr_accessor :page_count # Number of pages of the document
-    attr_accessor :page_width # Page width of the document
-    attr_accessor :page_height # Page height of the document
-    attr_accessor :file_size # Size of the document in bytes
+    # The document ID
+    attr_accessor :id 
+
+    # The document title
+    attr_accessor :title 
+
+    # The document subject
+    attr_accessor :subject 
+
+    # Number of pages of the document
+    attr_accessor :page_count 
+
+    # Page width of the document in pixels
+    attr_accessor :page_width 
+
+    # Page height of the document in pixels
+    attr_accessor :page_height 
+
+    # File size of the original document bytes
+    attr_accessor :file_size 
 
     TRIES = 3 #:nodoc:
 
@@ -150,7 +162,7 @@ module Vuzit
     #  Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
     #  Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
     # 
-    #  doc = Vuzit::Document.upload("c:/path/to/document.pdf")
+    #  doc = Vuzit::Document.upload("c:/path/to/document.pdf", :secure => true)
     #  puts doc.id
     def self.upload(file, options = {})
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
