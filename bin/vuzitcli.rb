@@ -40,7 +40,7 @@ class ParseOptions
       opts.separator ""
       opts.separator "File upload options:"
 
-      opts.on("-u", "--upload [PATH]", "File to upload") do |value|
+      opts.on("-f", "--file [PATH]", "File to upload") do |value|
         options.file_path = value
       end
       
@@ -93,17 +93,22 @@ class ParseOptions
 
 end
 
+def error(message)
+  puts ''
+  puts message
+end
+
 # Parse the options and run the program.  
 options = ParseOptions.parse(ARGV)
 
 if options.public_key == nil
-  puts "ERROR: Public key is required"
-  return
+  error "ERROR: Public key is required"
+  exit
 end
 
 if options.private_key == nil
-  puts "ERROR: Private key is required"
-  return
+  error "ERROR: Private key is required"
+  exit
 end
 
 Vuzit::Service.public_key = options.public_key
@@ -136,17 +141,16 @@ elsif options.delete != nil
     doc = Vuzit::Document.destroy(options.delete)
     puts "DELETED: #{options.delete}"
   rescue Vuzit::Exception => ex
-    puts "Error occurred: #{ex.code}, #{ex.message}" 
+    error "Error occurred: #{ex.code}, #{ex.message}" 
   end
 elsif options.file_path != nil
   begin
     doc = Vuzit::Document.upload(options.file_path, :secure => options.secure)
     puts "UPLOADED: #{doc.id}"
   rescue Vuzit::Exception => ex
-    puts "Error occurred: #{ex.code}, #{ex.message}" 
+    error "Error occurred: #{ex.code}, #{ex.message}" 
   end
 else
-  puts ""
-  puts "Please select an option"
+  error "Please select an option"
 end
 
