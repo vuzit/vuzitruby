@@ -34,6 +34,7 @@ The client library is a RubyGem called *vuzitruby*. To install, type:
 * Sign up for a free Vuzit account - https://ssl.vuzit.com/signup
 * Code Examples - http://wiki.github.com/vuzit/vuzitruby/code-examples
 * Vuzit API Reference - http://doc.vuzit.com/vuzitruby
+* VuzitCL Command Line - http://wiki.github.com/vuzit/vuzitruby/vuzitcl
 
 == EXAMPLES
 

@@ -1,0 +1,130 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'optparse'
+require 'optparse/time'
+require 'ostruct'
+require 'pp'
+
+require File.dirname(__FILE__) + '/../lib/vuzitruby'
+
+class ParseOptions
+  
+  # Parse the command line options. 
+  def self.parse(args)
+    options = OpenStruct.new
+    options.key = nil
+    options.id = nil
+    options.upload = nil
+    options.public = false
+    options.delete = nil
+    options.load = nil
+    options.service_url = nil
+    options.verbose = false
+    
+    opts = OptionParser.new do |opts|
+      opts.banner = "VuzitCL - Vuzit Command Line\n"
+      opts.banner += "Usage: vuzitcl -k [PUBLIC_KEY],[PRIVATE_KEY] [OPTIONS]"
+
+      opts.separator ""
+      opts.separator "Options:"
+      
+      opts.on("-k", "--keys [PUB_KEY],[PRIV_KEY]", 
+              "Developer API keys - REQUIRED") do |value|
+        options.key = value
+      end
+      
+      opts.on("-u", "--upload [PATH]", "File to upload") do |value|
+        options.upload = value
+      end
+      
+      opts.on("-p", "--public", "Make uploaded file public") do |value|
+        options.public = true
+      end
+
+      opts.on("-l", "--load [ID]", "Loads the document data") do |value|
+        options.load = value
+      end
+      
+      opts.on("-d", "--delete [ID]", "Deletes a document") do |value|
+        options.delete = value
+      end
+      
+      opts.on("-s", "--service-url [URL]", "Sets the service URL") do |value|
+        options.service_url = value
+      end
+
+      opts.on("-v", "--verbose", "Prints more messages") do
+        options.verbose = true
+      end
+      
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        exit
+      end
+    end
+    
+    if args.length < 1
+      puts opts
+    end
+
+    opts.parse!(args)
+    return options
+  end  # parse()
+
+end
+
+def error(message)
+  puts ''
+  puts message
+end
+
+# Parse the options and run the program.  
+options = ParseOptions.parse(ARGV)
+
+if options.key == nil
+  error "ERROR: Public and private keys are required"
+  exit
+end
+
+Vuzit::Service.public_key = options.key.split(',')[0]
+Vuzit::Service.private_key = options.key.split(',')[1]
+
+if options.service_url != nil
+  Vuzit::Service.service_url = options.service_url
+end
+
+if options.verbose == true
+  Vuzit::Service.debug = true
+end
+
+if options.load != nil
+  begin
+    doc = Vuzit::Document.find(options.load)
+    puts "LOADED: #{doc.id}"
+    puts "title: #{doc.title}"
+    puts "subject: #{doc.subject}"
+    puts "pages: #{doc.page_count}"
+    puts "width: #{doc.page_width}"
+    puts "height: #{doc.page_height}"
+    puts "size: #{doc.file_size}"
+  rescue Vuzit::Exception => ex
+    puts "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+elsif options.delete != nil
+  begin
+    doc = Vuzit::Document.destroy(options.delete)
+    puts "DELETED: #{options.delete}"
+  rescue Vuzit::Exception => ex
+    error "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+elsif options.upload != nil
+  begin
+    doc = Vuzit::Document.upload(options.upload, :secure => !options.public)
+    puts "UPLOADED: #{doc.id}"
+  rescue Vuzit::Exception => ex
+    error "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+else
+  error "Please select an option"
+end
+
