@@ -23,17 +23,17 @@ class ParseOptions
     
     opts = OptionParser.new do |opts|
       opts.banner = "VuzitCL - Vuzit Command Line\n"
-      opts.banner += "Usage: vuzitcl -k [PUBLIC_KEY],[PRIVATE_KEY] [OPTIONS]"
+      opts.banner += "Usage: vuzitcl -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]"
 
       opts.separator ""
       opts.separator "Options:"
       
-      opts.on("-k", "--keys [PUB_KEY],[PRIV_KEY]", 
+      opts.on("-k", "--keys=PUB_KEY,PRIV_KEY", 
               "Developer API keys - REQUIRED") do |value|
         options.key = value
       end
       
-      opts.on("-u", "--upload [PATH]", "File to upload") do |value|
+      opts.on("-u", "--upload=PATH", "File to upload") do |value|
         options.upload = value
       end
       
@@ -41,15 +41,15 @@ class ParseOptions
         options.public = true
       end
 
-      opts.on("-l", "--load [ID]", "Loads the document data") do |value|
+      opts.on("-l", "--load=ID", "Loads the document data") do |value|
         options.load = value
       end
       
-      opts.on("-d", "--delete [ID]", "Deletes a document") do |value|
+      opts.on("-d", "--delete=ID", "Deletes a document") do |value|
         options.delete = value
       end
       
-      opts.on("-s", "--service-url [URL]", "Sets the service URL") do |value|
+      opts.on("-s", "--service-url=URL", "Sets the service URL") do |value|
         options.service_url = value
       end
 
@@ -82,7 +82,7 @@ end
 options = ParseOptions.parse(ARGV)
 
 if options.key == nil
-  error "ERROR: Public and private keys are required"
+  error "ERROR: Public and private keys (-k switch) are required"
   exit
 end
 

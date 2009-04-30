@@ -18,22 +18,18 @@ When you run VuzitCL without any options it will give you the list of options
 seen below.  Several examples of how to use these commands is listed in the 
 later sections.  
 
-<pre>
-<code>
-VuzitCL - Vuzit Command Line
-Usage: vuzitcl -k [PUBLIC_KEY],[PRIVATE_KEY] [OPTIONS]
+  VuzitCL - Vuzit Command Line
+  Usage: vuzitcl -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]
 
-Options:
-    -k, --keys [PUB_KEY],[PRIV_KEY]  Developer API keys - REQUIRED
-    -u, --upload [PATH]              File to upload
-    -p, --public                     Make uploaded file public
-    -l, --load [ID]                  Loads the document data
-    -d, --delete [ID]                Deletes a document
-    -s, --service-url [URL]          Sets the service URL
-    -v, --verbose                    Prints more messages
-    -h, --help                       Show this message
-</code>
-</pre>
+  Options:
+      -k, --keys=PUB_KEY,PRIV_KEY      Developer API keys - REQUIRED
+      -u, --upload=PATH                File to upload
+      -p, --public                     Make uploaded file public
+      -l, --load=ID                    Loads the document data
+      -d, --delete=ID                  Deletes a document
+      -s, --service-url=URL            Sets the service URL
+      -v, --verbose                    Prints more messages
+      -h, --help                       Show this message
 
 --------------------------------------------------
 -- UPLOAD EXAMPLES
@@ -44,18 +40,11 @@ PRIVATE_KEY with your personal Vuzit developer public and private keys
 respectively.  Notice the comma (",") between the two keys.  You can sign up 
 to get your keys from Vuzit here: https://ssl.vuzit.com/signup.  
 
-<pre>
-<code>
-vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf"
-</code>
-</pre>
+  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf"
 
 The output of that command if successful is below.  
 
-<pre>
-<code>
-UPLOADED: abc123 </code>
-</pre>
+  UPLOADED: abc123
 
 The "abc123" is an example of the document ID.  The ID is the unique identifier 
 for the document in the Vuzit document system.  You can use this ID to load or 
@@ -64,11 +53,7 @@ delete the document later.
 Below is the same example of how to upload a file to Vuzit but to make the file 
 public (using the -p flag).  
 
-<pre>
-<code>
-vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf" -p
-</code>
-</pre>
+  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf" -p
 
 --------------------------------------------------
 -- LOAD EXAMPLE
@@ -77,25 +62,17 @@ vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf" -p
 Below is an example of how to load the data from a document.  In this example 
 we'll use that made up "abc123" document ID.  
 
-<pre>
-<code>
-vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -l abc123
-</code>
-</pre>
+  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -l abc123
 
 This is some sample output that you'll see:
 
-<pre>
-<code>
-LOADED: abc123
-title: Some sample title
-subject: Sample subject
-pages: 13
-width: 595
-height: 842
-size: 29730
-</code>
-</pre>
+  LOADED: abc123
+  title: Some sample title
+  subject: Sample subject
+  pages: 13
+  width: 595
+  height: 842
+  size: 29730
 
 --------------------------------------------------
 -- DELETE EXAMPLE
@@ -104,19 +81,11 @@ size: 29730
 Below is an example of how to delete a document.  In this example we'll use 
 the "abc123" document ID we created earlier.  
 
-<pre>
-<code>
-vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -d abc123
-</code>
-</pre>
+  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -d abc123
 
 This is some sample output that you'll see if successful:
 
-<pre>
-<code>
-DELETED: abc123
-</code>
-</pre>
+  DELETED: abc123
 
 --------------------------------------------------
 -- USING WITH YOUR PROGRAMMING LANGUAGE
