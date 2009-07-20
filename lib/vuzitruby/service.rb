@@ -83,6 +83,11 @@ module Vuzit
       @@service_url
     end
 
+    # Returns the User-Agent of the library. 
+    def self.user_agent
+      'VuzitRuby Library 1.0.0'
+    end
+
     # Switch this to _true_ if you would like to see debug messages in the 
     # output. 
     def self.debug=(value)

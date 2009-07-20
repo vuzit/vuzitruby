@@ -69,7 +69,7 @@ module Vuzit
 
       query = "/documents/#{id}.xml?key=#{Vuzit::Service.public_key}" +
               "&signature=#{sig}&timestamp=#{timestamp.to_i}"
-      request = Net::HTTP::Delete.new(query)
+      request = Net::HTTP::Delete.new(query, {'User-Agent' => Vuzit::Service.user_agent})
       response = http.start { http.request(request) }
 
       if response.code.to_i != 200
@@ -116,7 +116,7 @@ module Vuzit
 
       query = "/documents/#{id}.xml?key=#{Vuzit::Service.public_key}" +
               "&signature=#{sig}&timestamp=#{timestamp.to_i}"
-      request = Net::HTTP::Get.new(query)
+      request = Net::HTTP::Get.new(query, {'User-Agent' => Vuzit::Service.user_agent})
       response = http.start { http.request(request) }
 
       # TODO: Check if response.code.to_i != 200
@@ -251,7 +251,7 @@ module Vuzit
       # API methods can be SLOW.  Make sure this is set to something big to prevent spurious timeouts
       http.read_timeout = 15 * 60
 
-      request = Net::HTTP::Post.new('/documents')
+      request = Net::HTTP::Post.new('/documents', {'User-Agent' => Vuzit::Service.user_agent})
       request.multipart_params = fields
 
       tries = TRIES
