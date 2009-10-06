@@ -111,16 +111,16 @@ module Vuzit
     #  sig = Vuzit::Service.get_signature("show", "DOCUMENT_ID", timestamp)
     def self.get_signature(service, id = '', time = nil)
       if Vuzit::Service.public_key == nil || Vuzit::Service.private_key == nil
-        raise Vuzit::Exception.new("The public_key or private_key variables are nil")
+        raise Vuzit::ClientException.new("The public_key or private_key variables are nil")
       end
       time = (time == nil) ? Time.now.to_i : time.to_i
 
       if @@public_key == nil
-        raise Vuzit::Exception.new("Vuzit::Service.public_key not set")
+        raise Vuzit::ClientException.new("Vuzit::Service.public_key not set")
       end
 
       if @@private_key == nil
-        raise Vuzit::Exception.new("Vuzit::Service.private_key not set")
+        raise Vuzit::ClientException.new("Vuzit::Service.private_key not set")
       end
 
       msg = "#{service}#{id}#{@@public_key}#{time}"

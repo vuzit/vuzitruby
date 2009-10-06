@@ -107,21 +107,21 @@ if options.load != nil
     puts "width: #{doc.page_width}"
     puts "height: #{doc.page_height}"
     puts "size: #{doc.file_size}"
-  rescue Vuzit::Exception => ex
+  rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end
 elsif options.delete != nil
   begin
     doc = Vuzit::Document.destroy(options.delete)
     puts "DELETED: #{options.delete}"
-  rescue Vuzit::Exception => ex
+  rescue Vuzit::ClientException => ex
     error "Error occurred: #{ex.code}, #{ex.message}" 
   end
 elsif options.upload != nil
   begin
     doc = Vuzit::Document.upload(options.upload, :secure => !options.public)
     puts "UPLOADED: #{doc.id}"
-  rescue Vuzit::Exception => ex
+  rescue Vuzit::ClientException => ex
     error "Error occurred: #{ex.code}, #{ex.message}" 
   end
 else

@@ -11,7 +11,7 @@ class ExceptionTest < Test::Unit::TestCase
     
     begin
       doc = Vuzit::Document.destroy('5')
-    rescue Vuzit::Exception => ex
+    rescue Vuzit::ClientException => ex
       assert_equal 414, ex.code
       assert_equal "The public API key is missing or invalid.", ex.message
     end
@@ -23,7 +23,7 @@ class ExceptionTest < Test::Unit::TestCase
     
     begin
       doc = Vuzit::Document.destroy("5")
-    rescue Vuzit::Exception => ex
+    rescue Vuzit::ClientException => ex
       assert_equal 412, ex.code
       assert_equal "Access is denied.  Invalid signature", ex.message
     end
@@ -34,7 +34,7 @@ class ExceptionTest < Test::Unit::TestCase
     Vuzit::Service.private_key = @private_key
     begin
       doc = Vuzit::Document.destroy('does_not_exist')
-    rescue Vuzit::Exception => ex
+    rescue Vuzit::ClientException => ex
       assert_equal 422, ex.code
       assert_equal "Document not found", ex.message
     end

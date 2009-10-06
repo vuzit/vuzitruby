@@ -51,7 +51,7 @@ module Vuzit
     end
 
     # Deletes a document by the ID.  Returns true if it succeeded.  It throws
-    # a Vuzit::Exception on failure.  It returns _true_ on success.  
+    # a Vuzit::ClientException on failure.  It returns _true_ on success.  
     #
     # Example:
     #
@@ -77,18 +77,18 @@ module Vuzit
         begin
           doc = REXML::Document.new(response.body)
         rescue Exception => ex
-          raise Vuzit::Exception.new("XML error: #{ex.message}")
+          raise Vuzit::ClientException.new("XML error: #{ex.message}")
         end
 
         if doc.root != nil
           code = doc.root.elements['code']
           if code != nil
-            raise Vuzit::Exception.new(doc.root.elements['msg'].text, code.text.to_i);
+            raise Vuzit::ClientException.new(doc.root.elements['msg'].text, code.text.to_i);
           end
         end
 
         # At this point we don't know what the error is 
-        raise Vuzit::Exception.new("Unknown error occurred #{response.message}", response.code)
+        raise Vuzit::ClientException.new("Unknown error occurred #{response.message}", response.code)
       end
 
       debug(response.code + " " + response.message + "\n")
@@ -96,7 +96,7 @@ module Vuzit
       return true
     end
 
-    # Finds a document by the ID.  It throws a Vuzit::Exception on failure. 
+    # Finds a document by the ID.  It throws a Vuzit::ClientException on failure. 
     # 
     # Example:
     #
@@ -124,23 +124,23 @@ module Vuzit
       begin
         doc = REXML::Document.new(response.body)
       rescue Exception => ex
-        raise Vuzit::Exception.new("XML error: #{ex.message}")
+        raise Vuzit::ClientException.new("XML error: #{ex.message}")
       end
 
       if doc.root == nil
-        raise Vuzit::Exception.new("No response from server");
+        raise Vuzit::ClientException.new("No response from server");
       end
 
       debug(response.code + " " + response.message + "\n" + response.body)
 
       code = doc.root.elements['code']
       if code != nil
-        raise Vuzit::Exception.new(doc.root.elements['msg'].text, code.text.to_i);
+        raise Vuzit::ClientException.new(doc.root.elements['msg'].text, code.text.to_i);
       end
 
       id = doc.root.elements['web_id']
       if id == nil
-        raise Vuzit::Exception.new("Unknown error occurred");
+        raise Vuzit::ClientException.new("Unknown error occurred");
       end
 
       result = Vuzit::Document.new
@@ -155,7 +155,7 @@ module Vuzit
       return result
     end
 
-    # Uploads a file to Vuzit. It throws a Vuzit::Exception on failure.
+    # Uploads a file to Vuzit. It throws a Vuzit::ClientException on failure.
     #
     # Example:
     #
@@ -166,6 +166,10 @@ module Vuzit
     #  puts doc.id
     def self.upload(file, options = {})
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
+
+      if !File.exists?(file)
+        raise Vuzit::ClientException.new("The file could not be found: #{file}")
+      end
 
       timestamp = Time.now
       sig = Vuzit::Service::get_signature('create', nil, timestamp)
@@ -197,21 +201,21 @@ module Vuzit
       begin
         doc = REXML::Document.new(response.body)
       rescue Exception => ex
-        raise Vuzit::Exception.new("XML error: #{ex.message}")
+        raise Vuzit::ClientException.new("XML error: #{ex.message}")
       end
 
       if doc.root == nil
-        raise Vuzit::Exception.new("No response from server");
+        raise Vuzit::ClientException.new("No response from server");
       end
 
       code = doc.root.elements['code']
       if code != nil
-        raise Vuzit::Exception.new(doc.root.elements['msg'].text, code.text.to_i);
+        raise Vuzit::ClientException.new(doc.root.elements['msg'].text, code.text.to_i);
       end
 
       id = doc.root.elements['web_id']
       if id == nil
-        raise Vuzit::Exception.new("Unknown error occurred");
+        raise Vuzit::ClientException.new("Unknown error occurred");
       end
 
       result = Vuzit::Document.new
@@ -262,7 +266,7 @@ module Vuzit
         $stderr.puts "Request encountered error, will retry #{tries} more."
         if tries > 0
           # Retrying several times with sleeps is recommended.
-          # This will prevent temporary downtimes at Scribd from breaking API applications
+          # This will prevent temporary downtimes
           sleep(20)
           retry
         end

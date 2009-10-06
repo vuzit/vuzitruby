@@ -1,7 +1,7 @@
 
 module Vuzit
   # Vuzit library exception handler class. 
-  class Exception < StandardError
+  class ClientException < StandardError
     # The web service error message
     attr_reader :message
 
@@ -14,7 +14,7 @@ module Vuzit
     #
     #  begin
     #    doc = Vuzit::Document.find("DOCUMENT_ID")
-    #  rescue Vuzit::Exception => ex
+    #  rescue Vuzit::ClientException => ex
     #    puts "Error code: #{ex.code}, message: #{ex.message}"
     #  end
     def initialize(message, code = 0)
@@ -24,9 +24,9 @@ module Vuzit
 
     # Returns the string representation of the error in this format:
     #  
-    #  Vuzit::Exception: [CODE]: MESSAGE
+    #  Vuzit::ClientException: [CODE]: MESSAGE
     def to_s
-      return "Vuzit::Exception: [#{@code}]: #{@message}";
+      return "Vuzit::ClientException: [#{@code}]: #{@message}";
     end
   end
 end
