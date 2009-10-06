@@ -8,6 +8,7 @@ class ExceptionTest < Test::Unit::TestCase
   def test_bad_api_key
     Vuzit::Service.public_key = 'does_not_exist'
     Vuzit::Service.private_key = 'does_not_matter'
+    Vuzit::Service.service_url = @service_url
     
     begin
       doc = Vuzit::Document.destroy('5')
@@ -20,6 +21,7 @@ class ExceptionTest < Test::Unit::TestCase
   def test_invalid_signature
     Vuzit::Service.public_key = @public_key
     Vuzit::Service.private_key = 'invalid_key'
+    Vuzit::Service.service_url = @service_url
     
     begin
       doc = Vuzit::Document.destroy("5")
@@ -32,6 +34,8 @@ class ExceptionTest < Test::Unit::TestCase
   def test_destroy_document_does_not_exist
     Vuzit::Service.public_key = @public_key
     Vuzit::Service.private_key = @private_key
+    Vuzit::Service.service_url = @service_url
+
     begin
       doc = Vuzit::Document.destroy('does_not_exist')
     rescue Vuzit::ClientException => ex
@@ -42,8 +46,9 @@ class ExceptionTest < Test::Unit::TestCase
 
   # Helper methods
   def setup
-    @public_key = 'b12c30a5-77aa-ef5f-9b4f-b83a4f88149e' 
+    @public_key = nil
     @private_key = nil
+    @service_url = 'http://vuzit.com'
 
     if @private_key == nil
       raise Exception.new("You must set @private_key in setup() method") 

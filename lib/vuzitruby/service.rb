@@ -101,15 +101,8 @@ module Vuzit
 
     # Returns The signature string.  NOTE: If you are going to use this 
     # with the Vuzit Javascript API then the value must be encoded with the 
-    # CGI.escape function.  See the Wiki example for more information:
-    #
-    #   http://wiki.github.com/vuzit/vuzitruby/code-samples
-    #
-    # Example:
-    #
-    #  timestamp = Time.now
-    #  sig = Vuzit::Service.get_signature("show", "DOCUMENT_ID", timestamp)
-    def self.get_signature(service, id = '', time = nil)
+    # CGI.escape function.  See the Wiki example for more information.  
+    def self.signature(service, id = '', time = nil)
       if Vuzit::Service.public_key == nil || Vuzit::Service.private_key == nil
         raise Vuzit::ClientException.new("The public_key or private_key variables are nil")
       end

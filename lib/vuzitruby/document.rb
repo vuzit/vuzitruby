@@ -16,10 +16,7 @@ module Vuzit
 
   # Class for uploading, loading, and deleting documents using the Vuzit Web
   # Service API: http://vuzit.com/developer/documents_api
-  #
-  # To use this class you need to {sign up}[http://vuzit.com/signup] for 
-  # Vuzit first.
-  class Document
+  class Document < Base
     # The document ID
     attr_accessor :id 
 
@@ -52,16 +49,9 @@ module Vuzit
 
     # Deletes a document by the ID.  Returns true if it succeeded.  It throws
     # a Vuzit::ClientException on failure.  It returns _true_ on success.  
-    #
-    # Example:
-    #
-    #  Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
-    #  Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
-    # 
-    #  result = Vuzit::Document.destroy("DOCUMENT_ID")
     def self.destroy(id)
       timestamp = Time.now
-      sig = CGI.escape(Vuzit::Service::get_signature('destroy', id, timestamp))
+      sig = CGI.escape(Vuzit::Service::signature('destroy', id, timestamp))
 
       # Create the connection
       uri = URI.parse(Vuzit::Service.service_url)
@@ -97,18 +87,9 @@ module Vuzit
     end
 
     # Finds a document by the ID.  It throws a Vuzit::ClientException on failure. 
-    # 
-    # Example:
-    #
-    #  Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
-    #  Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
-    # 
-    #  doc = Vuzit::Document.find("DOCUMENT_ID")
-    #  puts doc.id
-    #  puts doc.title
     def self.find(id)
       timestamp = Time.now
-      sig = CGI.escape(Vuzit::Service::get_signature('show', id, timestamp))
+      sig = CGI.escape(Vuzit::Service::signature('show', id, timestamp))
 
       # Create the connection
       uri = URI.parse(Vuzit::Service.service_url)
@@ -156,14 +137,6 @@ module Vuzit
     end
 
     # Uploads a file to Vuzit. It throws a Vuzit::ClientException on failure.
-    #
-    # Example:
-    #
-    #  Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
-    #  Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
-    # 
-    #  doc = Vuzit::Document.upload("c:/path/to/document.pdf", :secure => true)
-    #  puts doc.id
     def self.upload(file, options = {})
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
@@ -172,7 +145,7 @@ module Vuzit
       end
 
       timestamp = Time.now
-      sig = Vuzit::Service::get_signature('create', nil, timestamp)
+      sig = Vuzit::Service::signature('create', nil, timestamp)
       # Make a request form
       fields = Hash.new
       fields[:format] = 'xml'
@@ -224,57 +197,5 @@ module Vuzit
       return result
     end
 
-    private
-
-    # Sends debug messages if activated
-    def self.debug(text)
-      $stderr.puts(text) if Vuzit::Service::debug == true
-    end
-
-    # Makes a HTTP POST.  
-    def self.send_request(method, fields = {})
-      # See if method is given
-      raise ArgumentError, "Method should be given" if method.nil? || method.empty?
-      
-      debug("** Remote method call: #{method}; fields: #{fields.inspect}")
-      
-      # replace pesky hashes to prevent accidents
-      fields = fields.stringify_keys
-
-      # Complete fields with the method name
-      fields['method'] = method
-      
-      fields.reject! { |k, v| v.nil? }
-
-      debug("** POST parameters: #{fields.inspect}")
-
-      # Create the connection
-      uri = URI.parse(Vuzit::Service.service_url)
-      http = Net::HTTP.new(uri.host, uri.port)
-
-      # API methods can be SLOW.  Make sure this is set to something big to prevent spurious timeouts
-      http.read_timeout = 15 * 60
-
-      request = Net::HTTP::Post.new('/documents', {'User-Agent' => Vuzit::Service.user_agent})
-      request.multipart_params = fields
-
-      tries = TRIES
-      begin
-        tries -= 1
-        res = http.request(request)
-      rescue Exception
-        $stderr.puts "Request encountered error, will retry #{tries} more."
-        if tries > 0
-          # Retrying several times with sleeps is recommended.
-          # This will prevent temporary downtimes
-          sleep(20)
-          retry
-        end
-        raise $!
-      end
-      return res
-    end
-
   end
-
 end
