@@ -7,99 +7,95 @@ require 'pp'
 
 require File.dirname(__FILE__) + '/../lib/vuzitruby'
 
-class ParseOptions
-  
-  # Parse the command line options. 
-  def self.parse(args)
-    options = OpenStruct.new
-    options.key = nil
-    options.id = nil
-    options.upload = nil
-    options.public = false
-    options.delete = nil
-    options.load = nil
-    options.service_url = nil
-    options.verbose = false
-    
-    opts = OptionParser.new do |opts|
-      opts.banner = "VuzitCL - Vuzit Command Line\n"
-      opts.banner += "Usage: vuzitcl -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]"
+# GENERAL METHODS
 
-      opts.separator ""
-      opts.separator "Options:"
-      
-      opts.on("-k", "--keys=PUB_KEY,PRIV_KEY", 
-              "Developer API keys - REQUIRED") do |value|
-        options.key = value
-      end
-      
-      opts.on("-u", "--upload=PATH", "File to upload") do |value|
-        options.upload = value
-      end
-      
-      opts.on("-p", "--public", "Make uploaded file public") do |value|
-        options.public = true
-      end
-
-      opts.on("-l", "--load=ID", "Loads the document data") do |value|
-        options.load = value
-      end
-      
-      opts.on("-d", "--delete=ID", "Deletes a document") do |value|
-        options.delete = value
-      end
-      
-      opts.on("-s", "--service-url=URL", "Sets the service URL") do |value|
-        options.service_url = value
-      end
-
-      opts.on("-v", "--verbose", "Prints more messages") do
-        options.verbose = true
-      end
-      
-      opts.on_tail("-h", "--help", "Show this message") do
-        puts opts
-        exit
-      end
-    end
-    
-    if args.length < 1
-      puts opts
-    end
-
-    opts.parse!(args)
-    return options
-  end  # parse()
-
-end
-
+# Prints an error message
 def error(message)
   puts ''
   puts message
 end
 
-# Parse the options and run the program.  
-options = ParseOptions.parse(ARGV)
+# Loads the global parameters
+def global_parameters_load(args)
+  options = OpenStruct.new
+  options.key = nil
+  options.id = nil
 
-if options.key == nil
-  error "ERROR: Public and private keys (-k switch) are required"
-  exit
-end
+  opts = OptionParser.new do |opts|
+    opts.on("-k", "--keys=PUB_KEY,PRIV_KEY", 
+            "Developer API keys - REQUIRED") do |value|
+      options.key = value
+    end
+    
+    opts.on("-s", "--service-url=URL", "Sets the service URL") do |value|
+      options.service_url = value
+    end
+  end
 
-Vuzit::Service.public_key = options.key.split(',')[0]
-Vuzit::Service.private_key = options.key.split(',')[1]
-
-if options.service_url != nil
-  Vuzit::Service.service_url = options.service_url
-end
-
-if options.verbose == true
-  Vuzit::Service.debug = true
-end
-
-if options.load != nil
   begin
-    doc = Vuzit::Document.find(options.load)
+    opts.parse!(args)
+  rescue OptionParser::InvalidOption => e
+    e.recover(args)
+  end
+
+  if options.key == nil
+    error("Must provide the --keys parameters")
+    return false
+  end
+
+  keys = options.key.split(',')
+
+  Vuzit::Service.public_key = keys[0]
+  Vuzit::Service.private_key = keys[1]
+  Vuzit::Service.user_agent = "VuzitCL Ruby 1.1.0"
+
+  if options.service_url != nil
+    Vuzit::Service.service_url = options.service_url
+  end
+
+  return true
+end
+
+# COMMAND FUNCTIONS
+
+# Performs the delete command.  
+def delete_command(args)
+  id = args.pop
+  
+  return if !global_parameters_load(args)
+
+  begin
+    doc = Vuzit::Document.destroy(id)
+    puts "DELETED: #{id}"
+  rescue Vuzit::ClientException => ex
+    error "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+end
+
+# Handles the help command
+def help_command(args)
+  command = args.pop
+
+  case command
+  when "load"
+    print_usage_load
+  when "delete"
+    print_usage_delete
+  when "upload"
+    print_usage_upload
+  else
+    error("Unknown option: [#{command}]")
+  end
+end
+
+# Performs the load command.  
+def load_command(args)
+  id = args.pop
+  
+  return if !global_parameters_load(args)
+
+  begin
+    doc = Vuzit::Document.find(id)
     puts "LOADED: #{doc.id}"
     puts "title: #{doc.title}"
     puts "subject: #{doc.subject}"
@@ -111,21 +107,116 @@ if options.load != nil
   rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end
-elsif options.delete != nil
-  begin
-    doc = Vuzit::Document.destroy(options.delete)
-    puts "DELETED: #{options.delete}"
-  rescue Vuzit::ClientException => ex
-    error "Error occurred: #{ex.code}, #{ex.message}" 
+end
+
+# Performs the load command.  
+def upload_command(args)
+  path = args.pop
+  
+  return if !global_parameters_load(args)
+
+  list = Hash.new
+  opts = OptionParser.new do |opts|
+    opts.on("-s", "--secure", "") do
+      list[:secure] = true
+    end
+    
+    opts.on("-p", "--download-pdf", "") do
+      list[:download_pdf] = true
+    end
+
+    opts.on("-d", "--download-document", "") do
+      list[:download_document] = true
+    end
   end
-elsif options.upload != nil
+
   begin
-    doc = Vuzit::Document.upload(options.upload, :secure => !options.public)
+    opts.parse!(args)
+  rescue OptionParser::InvalidOption => e
+    e.recover(args)
+  end
+
+  begin
+    doc = Vuzit::Document.upload(path, list)
     puts "UPLOADED: #{doc.id}"
   rescue Vuzit::ClientException => ex
     error "Error occurred: #{ex.code}, #{ex.message}" 
   end
-else
-  error "Please select an option"
+end 
+
+# PRINT USAGE METHODS
+
+# Prints the delete usage.  
+def print_usage_delete
+  puts "delete: Delete a document"
+  puts "usage: delete [OPTIONS] WEB_ID"
+  puts ""
+  puts "Valid options:"
+  puts "  none"
+  puts ""
+  print_usage_global
+end
+
+# Prints the general usage
+def print_usage_general
+  puts "VuzitCL - Vuzit Command Line"
+  puts "Usage: vuzitcl -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]"
+  puts ""
+  puts "Type 'vuzitcl --help <subcommand>' for help on a specific subcommand."
+  puts ""
+  puts "Available sub-commands:"
+  puts ""
+  puts "  upload"
+  puts "  delete"
+  puts "  load"
+  puts "  help"
+end
+
+# Prints the global options
+def print_usage_global
+  puts "Global Options:"
+  puts "  -k, --keys=PUB_KEY,PRIV_KEY    Developer API keys - REQUIRED"
+  puts "  -u, --service-url=URL          Sets the service URL (e.g. http://domain.com)"
+end
+
+# Prints the load options
+def print_usage_load
+  puts "load: Loads a document"
+  puts "usage: load [OPTIONS] WEB_ID"
+  puts ""
+  puts "Valid options:"
+  puts "  none"
+  puts ""
+  print_usage_global
+end
+
+# Prints the upload options
+def print_usage_upload
+  puts "upload: Upload a file to Vuzit."
+  puts "usage: upload [OPTIONS] PATH"
+  puts ""
+  puts "Valid options:"
+  puts "  -s, --secure                   Make the document secure (not public)"
+  puts "  -p, --download-pdf             Make the PDF downloadable"
+  puts "  -d, --download-document        Make the original document downloadable"
+  puts ""
+end
+
+# MAIN CODE EXECUTION
+
+command = ARGV.shift
+
+case command
+  when "load"
+    load_command(ARGV)
+  when "delete"
+    delete_command(ARGV)
+  when "upload"
+    upload_command(ARGV)
+  when "help"
+    help_command(ARGV)
+  else
+    error("Unknown command: [#{command}]")
+    print_usage_general 
 end
 

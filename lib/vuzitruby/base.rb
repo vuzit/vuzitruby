@@ -25,7 +25,14 @@ module Vuzit
     # Returns an HTTP connection
     def self.http_connection()
       uri = URI.parse(Vuzit::Service.service_url)
-      return Net::HTTP.new(uri.host, uri.port)
+
+      result = Net::HTTP.new(uri.host, uri.port)
+      if Vuzit::Service.service_url[0, 8] == "https://"
+        result.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        result.use_ssl = true
+      end
+
+      return result
     end
 
     # Returns a clean version of the parameters hash table.  
@@ -92,7 +99,7 @@ module Vuzit
       # API methods can be slow.  
       http.read_timeout = 15 * 60
       request = Net::HTTP::Post.new('/documents', {'User-Agent' => Vuzit::Service.user_agent})
-      request.multipart_params = fields
+      request.multipart_params = parameters_clean(fields)
 
       tries = 3
       begin
