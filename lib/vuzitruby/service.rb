@@ -75,12 +75,18 @@ module Vuzit
     # you are running Vuzit Enterprise on your own server.  
     # The default value is "http://vuzit.com"
     def self.service_url=(value)
-      @@service_url = value
+      url = value.strip
+      if url[-1, 1] == '/'
+        raise Exception.new("Trailing slashes (/) in service URLs are invalid")
+      end
+
+      @@service_url = url
     end
 
     # Returns the URL of the Vuzit web service. 
     def self.service_url
-      @@service_url
+      # Return clone so it does not change the orginal value
+      @@service_url.clone
     end
 
     # Returns the User-Agent of the library. 

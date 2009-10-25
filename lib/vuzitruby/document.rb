@@ -5,32 +5,20 @@ module Vuzit
   # Class for uploading, loading, and deleting documents using the Vuzit Web
   # Service API: http://vuzit.com/developer/documents_api
   class Document < Base
-    # The document ID
-    attr_accessor :id 
-
-    # The document title
-    attr_accessor :title 
-
-    # The document subject
-    attr_accessor :subject 
-
-    # Number of pages of the document
-    attr_accessor :page_count 
-
-    # Page width of the document in pixels
-    attr_accessor :page_width 
-
-    # Page height of the document in pixels
-    attr_accessor :page_height 
-
-    # File size of the original document bytes
-    attr_accessor :file_size 
+    attr_reader :id # The document ID
+    attr_reader :title # The document title
+    attr_reader :subject # The document subject
+    attr_reader :page_count # Number of pages of the document
+    attr_reader :page_width # Page width of the document in pixels
+    attr_reader :page_height # Page height of the document in pixels
+    attr_reader :file_size # File size of the original document bytes
+    attr_reader :status # Status of the document
 
     # Constructor.  
     def initialize #:nodoc:
       # Set the defaults
       @id = @title = @subject = nil
-      @page_count = @page_width = @page_height = @file_size = -1
+      @page_count = @page_width = @page_height = @file_size = @status = -1
     end
 
     # Deletes a document by the ID.  Returns true if it succeeded.  It throws
@@ -65,6 +53,12 @@ module Vuzit
       debug(response.code + " " + response.message + "\n")
 
       return true
+    end
+
+    # Returns a download URL. 
+    def self.download_url(id, file_extension)
+      params = post_parameters("show", nil, id)
+      return parameters_to_url("documents", params, id, file_extension)
     end
 
     # Finds a document by the ID.  It throws a Vuzit::ClientException on failure. 
@@ -103,13 +97,14 @@ module Vuzit
       end
 
       result = Vuzit::Document.new
-      result.id = id.text
-      result.title = doc.root.elements['title'].text
-      result.subject = doc.root.elements['subject'].text
-      result.page_count = doc.root.elements['page_count'].text.to_i
-      result.page_width = doc.root.elements['width'].text.to_i
-      result.page_height = doc.root.elements['height'].text.to_i
-      result.file_size = doc.root.elements['file_size'].text.to_i
+      result.send(:set_id, id.text)
+      result.send(:set_title, doc.root.elements['title'].text)
+      result.send(:set_subject, doc.root.elements['subject'].text)
+      result.send(:set_page_count, doc.root.elements['page_count'].text.to_i)
+      result.send(:set_page_width, doc.root.elements['width'].text.to_i)
+      result.send(:set_page_height, doc.root.elements['height'].text.to_i)
+      result.send(:set_file_size, doc.root.elements['file_size'].text.to_i)
+      result.send(:set_status, doc.root.elements['status'].text.to_i)
 
       return result
     end
@@ -155,10 +150,22 @@ module Vuzit
       end
 
       result = Vuzit::Document.new
-      result.id = id.text
+      result.send(:set_id, id.text)
 
       return result
     end
 
+    private
+
+    # Private setter methods so that you can set the internal variables but 
+    # not allow the setting of the public methods.  
+    def set_id(value) @id = value; end
+    def set_subject(value) @subject = value; end
+    def set_title(value) @title = value; end
+    def set_status(value) @status = value; end
+    def set_page_count(value) @page_count = value; end
+    def set_page_width(value) @page_width = value; end
+    def set_page_height(value) @page_height = value; end
+    def set_file_size(value) @file_size = value; end
   end
 end

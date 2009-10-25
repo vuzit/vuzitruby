@@ -107,6 +107,7 @@ if options.load != nil
     puts "width: #{doc.page_width}"
     puts "height: #{doc.page_height}"
     puts "size: #{doc.file_size}"
+    puts "status: #{doc.status}"
   rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end

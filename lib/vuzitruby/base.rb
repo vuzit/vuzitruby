@@ -48,8 +48,9 @@ module Vuzit
     # Converts a set of parameters to a URL. 
     def self.parameters_to_url(resource, params, id = nil, extension = 'xml')
       params = parameters_clean(params)
-      result = Vuzit::Service.service_url << "/" << resource
 
+      result = ''
+      result << Vuzit::Service.service_url.to_s << "/" << resource
       result << ("/" << id) if !id.nil?
       result << "." << extension << "?"
 
