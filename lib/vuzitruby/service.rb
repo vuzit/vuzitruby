@@ -85,7 +85,7 @@ module Vuzit
 
     # Returns the User-Agent of the library. 
     def self.user_agent
-      'VuzitRuby Library 1.0.0'
+      'VuzitRuby Library 1.1.0'
     end
 
     # Switch this to _true_ if you would like to see debug messages in the 
@@ -102,7 +102,7 @@ module Vuzit
     # Returns The signature string.  NOTE: If you are going to use this 
     # with the Vuzit Javascript API then the value must be encoded with the 
     # CGI.escape function.  See the Wiki example for more information.  
-    def self.signature(service, id = '', time = nil)
+    def self.signature(service, id = '', time = nil, pages = '', label = '')
       if Vuzit::Service.public_key == nil || Vuzit::Service.private_key == nil
         raise Vuzit::ClientException.new("The public_key or private_key variables are nil")
       end
@@ -116,7 +116,7 @@ module Vuzit
         raise Vuzit::ClientException.new("Vuzit::Service.private_key not set")
       end
 
-      msg = "#{service}#{id}#{@@public_key}#{time}"
+      msg = "#{service}#{id}#{@@public_key}#{time}#{pages}#{label}"
       hmac = hmac_sha1(@@private_key, msg)
       result = Base64::encode64(hmac).chomp
 

@@ -1,16 +1,4 @@
 require 'rexml/document'
-require 'uri'
-require 'cgi'
-
-class Hash #:nodoc:all
-   # Taken from Rails, with appreciation to DHH
-   def stringify_keys
-     inject({}) do |options, (key, value)|
-       options[key.to_s] = value
-       options
-     end
-   end unless method_defined?(:stringify_keys)
-end
 
 module Vuzit
 
@@ -38,8 +26,6 @@ module Vuzit
     # File size of the original document bytes
     attr_accessor :file_size 
 
-    TRIES = 3 #:nodoc:
-
     # Constructor.  
     def initialize #:nodoc:
       # Set the defaults
@@ -50,16 +36,11 @@ module Vuzit
     # Deletes a document by the ID.  Returns true if it succeeded.  It throws
     # a Vuzit::ClientException on failure.  It returns _true_ on success.  
     def self.destroy(id)
-      timestamp = Time.now
-      sig = CGI.escape(Vuzit::Service::signature('destroy', id, timestamp))
+      params = post_parameters("destroy", nil, id)
+      url = parameters_to_url("documents", params, id)
+      http = http_connection
 
-      # Create the connection
-      uri = URI.parse(Vuzit::Service.service_url)
-      http = Net::HTTP.new(uri.host, uri.port)
-
-      query = "/documents/#{id}.xml?key=#{Vuzit::Service.public_key}" +
-              "&signature=#{sig}&timestamp=#{timestamp.to_i}"
-      request = Net::HTTP::Delete.new(query, {'User-Agent' => Vuzit::Service.user_agent})
+      request = Net::HTTP::Delete.new(url, {'User-Agent' => Vuzit::Service.user_agent})
       response = http.start { http.request(request) }
 
       if response.code.to_i != 200
@@ -87,17 +68,14 @@ module Vuzit
     end
 
     # Finds a document by the ID.  It throws a Vuzit::ClientException on failure. 
-    def self.find(id)
-      timestamp = Time.now
-      sig = CGI.escape(Vuzit::Service::signature('show', id, timestamp))
+    def self.find(id, options = {})
+      raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
-      # Create the connection
-      uri = URI.parse(Vuzit::Service.service_url)
-      http = Net::HTTP.new(uri.host, uri.port)
+      params = post_parameters("show", options, id)
+      url = parameters_to_url("documents", params, id)
+      http = http_connection
 
-      query = "/documents/#{id}.xml?key=#{Vuzit::Service.public_key}" +
-              "&signature=#{sig}&timestamp=#{timestamp.to_i}"
-      request = Net::HTTP::Get.new(query, {'User-Agent' => Vuzit::Service.user_agent})
+      request = Net::HTTP::Get.new(url, {'User-Agent' => Vuzit::Service.user_agent})
       response = http.start { http.request(request) }
 
       # TODO: Check if response.code.to_i != 200
@@ -144,27 +122,12 @@ module Vuzit
         raise Vuzit::ClientException.new("The file could not be found: #{file}")
       end
 
-      timestamp = Time.now
-      sig = Vuzit::Service::signature('create', nil, timestamp)
-      # Make a request form
-      fields = Hash.new
-      fields[:format] = 'xml'
-      fields[:key] = Vuzit::Service::public_key
-
-      if options[:secure] != nil
-        fields[:secure] = options[:secure] == true ? '1' : '0'
-      else
-        fields[:secure] = '1'
-      end
-
-      fields[:signature] = sig
-      fields[:timestamp] = timestamp.to_i
-      fields[:file_type] = options[:file_type]
+      params = post_parameters("create", options)
       response = nil
 
       File.open(file, "rb") do |f|
-        fields[:upload] = f
-        response = send_request 'create', fields
+        params[:upload] = f
+        response = send_request 'create', params
       end
 
       debug(response.code + " " + response.message + "\n" + response.body)

@@ -1,3 +1,4 @@
+require 'cgi'
 
 module Vuzit
 
@@ -11,34 +12,88 @@ module Vuzit
       $stderr.puts(text) if Vuzit::Service::debug == true
     end
 
+    # Returns true if a value is a Boolean. 
+    def self.bool?(value)
+      return value.is_a?(TrueClass) || value.is_a?(FalseClass)
+    end
+
+    # Returns true if the value is empty.  
+    def self.empty?(value)
+      return (value == nil) || value.to_s.length < 1
+    end
+
+    # Returns an HTTP connection
+    def self.http_connection()
+      uri = URI.parse(Vuzit::Service.service_url)
+      return Net::HTTP.new(uri.host, uri.port)
+    end
+
+    # Returns a clean version of the parameters hash table.  
+    def self.parameters_clean(params)
+      result = Hash.new
+
+      params.each_pair do |key, value|
+        if bool?(value)
+          value = value ? "1" : "0"
+        end
+
+        if !empty?(value)
+          result[key] = value
+        end
+      end
+
+      return result
+    end
+
+    # Converts a set of parameters to a URL. 
+    def self.parameters_to_url(resource, params, id = nil, extension = 'xml')
+      params = parameters_clean(params)
+      result = Vuzit::Service.service_url << "/" << resource
+
+      result << ("/" << id) if !id.nil?
+      result << "." << extension << "?"
+
+      params.each_pair do |key, value|
+        result << (key.to_s << "=" << CGI.escape(value.to_s) << "&")
+      end
+
+      return result
+    end
+
+    # Returns the default HTTP post parameters hash.  
+    def self.post_parameters(method, params, id = '')
+      params = Hash.new if params.nil?
+
+      params[:method] = method
+      params[:key] = Vuzit::Service.public_key
+
+      timestamp = Time.now
+      params[:timestamp] = timestamp.to_i # time since epoch
+
+      pages = ''
+      if params.has_key?(:included_pages)
+        pages = params[:included_pages]
+      end
+      label = ''
+
+      signature = Vuzit::Service::signature(method, id, timestamp, pages, label)
+      params[:signature] = signature
+
+      return params
+    end
+
     # Makes a HTTP POST.  
     def self.send_request(method, fields = {})
-      # See if method is given
       raise ArgumentError, "Method should be given" if method.nil? || method.empty?
       
-      debug("** Remote method call: #{method}; fields: #{fields.inspect}")
-      
-      # replace pesky hashes to prevent accidents
-      fields = fields.stringify_keys
+      http = http_connection
 
-      # Complete fields with the method name
-      fields['method'] = method
-      
-      fields.reject! { |k, v| v.nil? }
-
-      debug("** POST parameters: #{fields.inspect}")
-
-      # Create the connection
-      uri = URI.parse(Vuzit::Service.service_url)
-      http = Net::HTTP.new(uri.host, uri.port)
-
-      # API methods can be SLOW.  Make sure this is set to something big to prevent spurious timeouts
+      # API methods can be slow.  
       http.read_timeout = 15 * 60
-
       request = Net::HTTP::Post.new('/documents', {'User-Agent' => Vuzit::Service.user_agent})
       request.multipart_params = fields
 
-      tries = TRIES
+      tries = 3
       begin
         tries -= 1
         res = http.request(request)

@@ -32,7 +32,7 @@ The client library is a RubyGem called *vuzitruby*. To install, type:
 
 * Download the code - http://github.com/vuzit/vuzitruby/downloads
 * Sign up for a free Vuzit account - https://ssl.vuzit.com/signup
-* Code Examples - http://wiki.github.com/vuzit/vuzitruby/code-examples
+* Code Examples - http://wiki.github.com/vuzit/vuzitruby/code_examples
 * Vuzit API Reference - http://wiki.github.com/vuzit/vuzitruby/api_reference
 * VuzitCL Command Line - http://wiki.github.com/vuzit/vuzitruby/vuzitcl
 
@@ -73,8 +73,8 @@ Upload and View with the JavaScript API Example for a Rails RHTML file:
   %>
   <html>
     <head>
-      <link href="http://vuzit.com/stylesheets/Vuzit-2.8.css" rel="Stylesheet" type="text/css" />
-      <script src="http://vuzit.com/javascripts/Vuzit-2.8.js" type="text/javascript"></script>
+      <link href="http://vuzit.com/stylesheets/Vuzit-2.9.css" rel="Stylesheet" type="text/css" />
+      <script src="http://vuzit.com/javascripts/Vuzit-2.9.js" type="text/javascript"></script>
       <script type="text/javascript">
         // Called when the page is loaded.  
         function initialize()  {
