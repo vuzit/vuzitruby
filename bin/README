@@ -19,17 +19,17 @@ seen below.  Several examples of how to use these commands is listed in the
 later sections.  
 
   VuzitCL - Vuzit Command Line
-  Usage: vuzitcl -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]
+  Usage: vuzitcl COMMAND -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]
 
-  Options:
-      -k, --keys=PUB_KEY,PRIV_KEY      Developer API keys - REQUIRED
-      -u, --upload=PATH                File to upload
-      -p, --public                     Make uploaded file public
-      -l, --load=ID                    Loads the document data
-      -d, --delete=ID                  Deletes a document
-      -s, --service-url=URL            Sets the service URL
-      -v, --verbose                    Prints more messages
-      -h, --help                       Show this message
+  Type 'vuzitcl help <command>' for help on a specific command.
+
+  Available commands:
+
+    upload
+    delete
+    load
+    help
+
 
 --------------------------------------------------
 -- UPLOAD EXAMPLES
@@ -40,7 +40,17 @@ PRIVATE_KEY with your personal Vuzit developer public and private keys
 respectively.  Notice the comma (",") between the two keys.  You can sign up 
 to get your keys from Vuzit here: https://ssl.vuzit.com/signup.  
 
-  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf"
+  upload: Upload a file to Vuzit.
+  usage: upload [OPTIONS] PATH
+
+  Valid options:
+    -s, --secure                   Make the document secure (not public)
+    -p, --download-pdf             Make the PDF downloadable
+    -d, --download-document        Make the original document downloadable
+
+Example usage:
+
+  vuzitcl upload -k PUBLIC_KEY,PRIVATE_KEY "c:/temp/test.pdf"
 
 The output of that command if successful is below.  
 
@@ -53,7 +63,7 @@ delete the document later.
 Below is the same example of how to upload a file to Vuzit but to make the file 
 public (using the -p flag).  
 
-  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -u "c:/temp/test.pdf" -p
+  vuzitcl upload -k PUBLIC_KEY,PRIVATE_KEY -p "c:/temp/test.pdf"
 
 --------------------------------------------------
 -- LOAD EXAMPLE
@@ -62,7 +72,7 @@ public (using the -p flag).
 Below is an example of how to load the data from a document.  In this example 
 we'll use that made up "abc123" document ID.  
 
-  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -l abc123
+  vuzitcl load -k PUBLIC_KEY,PRIVATE_KEY abc123
 
 This is some sample output that you'll see:
 
@@ -73,6 +83,7 @@ This is some sample output that you'll see:
   width: 595
   height: 842
   size: 29730
+  status: 4
 
 --------------------------------------------------
 -- DELETE EXAMPLE
@@ -81,7 +92,7 @@ This is some sample output that you'll see:
 Below is an example of how to delete a document.  In this example we'll use 
 the "abc123" document ID we created earlier.  
 
-  vuzitcl -k PUBLIC_KEY,PRIVATE_KEY -d abc123
+  vuzitcl delete -k PUBLIC_KEY,PRIVATE_KEY abc123
 
 This is some sample output that you'll see if successful:
 
@@ -98,12 +109,6 @@ these.  However if your language is not currently supported then you can use
 VuzitCL to handle it.  
 
 Below are a few libraries that allow programmers to run external applications.  
-
-* .NET: Process Start() method
-  http://msdn.microsoft.com/en-us/library/system.diagnostics.process.start(VS.71).aspx
-
-* Java: java.lang.Runtime exec() method
-  http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Runtime.html#exec(java.lang.String)
 
 * Python: subprocess
   http://docs.python.org/library/subprocess.html

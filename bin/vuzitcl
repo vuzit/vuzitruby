@@ -160,11 +160,11 @@ end
 # Prints the general usage
 def print_usage_general
   puts "VuzitCL - Vuzit Command Line"
-  puts "Usage: vuzitcl -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]"
+  puts "Usage: vuzitcl COMMAND -k PUBLIC_KEY,PRIVATE_KEY [OPTIONS]"
   puts ""
-  puts "Type 'vuzitcl --help <subcommand>' for help on a specific subcommand."
+  puts "Type 'vuzitcl help <command>' for help on a specific command."
   puts ""
-  puts "Available sub-commands:"
+  puts "Available commands:"
   puts ""
   puts "  upload"
   puts "  delete"
@@ -200,6 +200,7 @@ def print_usage_upload
   puts "  -p, --download-pdf             Make the PDF downloadable"
   puts "  -d, --download-document        Make the original document downloadable"
   puts ""
+  print_usage_global
 end
 
 # MAIN CODE EXECUTION

@@ -7,11 +7,6 @@ module Vuzit
 
     protected
 
-    # Sends debug messages if activated
-    def self.debug(text)
-      $stderr.puts(text) if Vuzit::Service::debug == true
-    end
-
     # Returns true if a value is a Boolean. 
     def self.bool?(value)
       return value.is_a?(TrueClass) || value.is_a?(FalseClass)

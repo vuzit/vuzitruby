@@ -50,8 +50,6 @@ module Vuzit
         raise Vuzit::ClientException.new("Unknown error occurred #{response.message}", response.code)
       end
 
-      debug(response.code + " " + response.message + "\n")
-
       return true
     end
 
@@ -83,8 +81,6 @@ module Vuzit
       if doc.root == nil
         raise Vuzit::ClientException.new("No response from server");
       end
-
-      debug(response.code + " " + response.message + "\n" + response.body)
 
       code = doc.root.elements['code']
       if code != nil
@@ -124,8 +120,6 @@ module Vuzit
         params[:upload] = f
         response = send_request 'create', params
       end
-
-      debug(response.code + " " + response.message + "\n" + response.body)
 
       # TODO: check the response.code.to_i to make sure it's 201
 

@@ -49,7 +49,6 @@ module Vuzit
     @@service_url = 'http://vuzit.com'
     @@product_name = 'VuzitRuby Library 1.1.0'
     @@user_agent = @@product_name
-    @@debug = false
 
     # TODO: For all of the set variables do not allow nil values
 
@@ -99,17 +98,6 @@ module Vuzit
     # Sets the User-Agent of the library. 
     def self.user_agent=(value)
       @@user_agent = "#{value} (#{@@product_name})"
-    end
-
-    # Switch this to _true_ if you would like to see debug messages in the 
-    # output. 
-    def self.debug=(value)
-      @@debug = value
-    end
-
-    # Returns whether debugging is turned on or off.  
-    def self.debug
-      @@debug
     end
 
     # Returns The signature string.  NOTE: If you are going to use this 
