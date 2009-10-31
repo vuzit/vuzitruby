@@ -27,7 +27,7 @@ def global_parameters_load(args)
       options.key = value
     end
     
-    opts.on("-s", "--service-url=URL", "Sets the service URL") do |value|
+    opts.on("-u", "--service-url=URL", "Sets the service URL") do |value|
       options.service_url = value
     end
   end
@@ -47,7 +47,7 @@ def global_parameters_load(args)
 
   Vuzit::Service.public_key = keys[0]
   Vuzit::Service.private_key = keys[1]
-  Vuzit::Service.user_agent = "VuzitCL Ruby 1.1.0"
+  Vuzit::Service.user_agent = "VuzitCL Ruby 1.2.1"
 
   if options.service_url != nil
     Vuzit::Service.service_url = options.service_url

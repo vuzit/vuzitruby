@@ -45,7 +45,8 @@ Find Document Example - how to load a document:
   Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
   Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
 
-  doc = Vuzit::Document::find("DOCUMENT_ID")
+  doc = Vuzit::Document.find("DOCUMENT_ID")
+
   puts "Document id: " + doc.id
   puts "Document title: " + doc.title
 
@@ -56,7 +57,7 @@ Delete (destroy) Document Example:
   Vuzit::Service.public_key = 'YOUR_PUBLIC_API_KEY'
   Vuzit::Service.private_key = 'YOUR_PRIVATE_API_KEY'
 
-  doc = Vuzit::Document::destroy("DOCUMENT_ID")
+  doc = Vuzit::Document.destroy("DOCUMENT_ID")
 
 Upload and View with the JavaScript API Example for a Rails RHTML file:
 

@@ -6,13 +6,13 @@
 # Gem building task
 Gem::Specification.new do |s|
   s.name = 'vuzitruby'
-  s.version = "1.2.0"
+  s.version = "1.2.1"
   s.homepage = 'http://vuzit.com/'
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Brent Matzelle"]
   s.default_executable = %q{vuzitcl}
   s.executables = ["vuzitcl"]
-  s.date = %q{2009-10-26}
+  s.date = %q{2009-10-31}
   s.description = %q{This is a library for the Vuzit Web Services API.  For 
                      more information on the platform, visit 
                      http://vuzit.com/developer}
@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--main", "README"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{vuzitruby}
-  s.rubygems_version = %q{1.2.0}
+  s.rubygems_version = %q{1.2.1}
   s.summary = %q{Ruby client library for the Vuzit Web Services API}
 end
 

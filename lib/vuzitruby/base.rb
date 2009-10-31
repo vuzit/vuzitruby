@@ -26,6 +26,9 @@ module Vuzit
         result.verify_mode = OpenSSL::SSL::VERIFY_NONE
         result.use_ssl = true
       end
+      # This compensates for the occassional load delay that the Net::HTTP
+      # library does not tolerate unless it is set.  
+      result.read_timeout = 15 * 60
 
       return result
     end
@@ -51,8 +54,12 @@ module Vuzit
     def self.parameters_to_url(resource, params, id = nil, extension = 'xml')
       params = parameters_clean(params)
 
+      # The Ruby HTTP library does not want the "http://domain.com" in the 
+      # URL as most other libraries do.  If the service URL is provided
+      # then less tolerant web servers like IIS will reject it. 
       result = ''
-      result << Vuzit::Service.service_url.to_s << "/" << resource
+      result << "/" << resource
+
       result << ("/" << id) if !id.nil?
       result << "." << extension << "?"
 
@@ -91,8 +98,6 @@ module Vuzit
       
       http = http_connection
 
-      # API methods can be slow.  
-      http.read_timeout = 15 * 60
       request = Net::HTTP::Post.new('/documents', {'User-Agent' => Vuzit::Service.user_agent})
       request.multipart_params = parameters_clean(fields)
 
