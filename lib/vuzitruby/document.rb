@@ -115,11 +115,19 @@ module Vuzit
 
       params = post_parameters("create", options)
       response = nil
-
-      File.open(file, "rb") do |f|
-        params[:upload] = f
-        response = send_request 'create', params
+      
+      # Determine type and set to IO for data such as that from a database
+      case file
+      when IO 
+        f = file
+      when String
+        f = File.open(file, 'rb')
+      else
+        raise ArgumentError, 'Expects String or IO argument'
       end
+
+      params[:upload] = f
+      response = send_request 'create', params
 
       # TODO: check the response.code.to_i to make sure it's 201
 

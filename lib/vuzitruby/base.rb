@@ -101,6 +101,12 @@ module Vuzit
       request = Net::HTTP::Post.new('/documents', {'User-Agent' => Vuzit::Service.user_agent})
       request.multipart_params = parameters_clean(fields)
 
+      # If the stream is over 3 megabytes in size
+      if fields[:upload].stat.size > (3 * 1048576)
+        # Set the timeout to 5 minutes
+        http.read_timeout = (5 * 60 * 1000)
+      end
+
       tries = 3
       begin
         tries -= 1
