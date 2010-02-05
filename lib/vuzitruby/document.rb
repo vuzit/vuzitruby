@@ -13,11 +13,12 @@ module Vuzit
     attr_reader :page_height # Page height of the document in pixels
     attr_reader :file_size # File size of the original document bytes
     attr_reader :status # Status of the document
+    attr_reader :excerpt # Text excerpt of the document
 
     # Constructor.  
     def initialize #:nodoc:
       # Set the defaults
-      @id = @title = @subject = nil
+      @id = @title = @subject = @excerpt = nil
       @page_count = @page_width = @page_height = @file_size = @status = -1
     end
 
@@ -89,18 +90,47 @@ module Vuzit
 
       id = doc.root.elements['web_id']
       if id == nil
-        raise Vuzit::ClientException.new("Unknown error occurred");
+        raise Vuzit::ClientException.new("The web_id element missing - unknown error occurred");
       end
 
-      result = Vuzit::Document.new
-      result.send(:set_id, id.text)
-      result.send(:set_title, doc.root.elements['title'].text)
-      result.send(:set_subject, doc.root.elements['subject'].text)
-      result.send(:set_page_count, doc.root.elements['page_count'].text.to_i)
-      result.send(:set_page_width, doc.root.elements['width'].text.to_i)
-      result.send(:set_page_height, doc.root.elements['height'].text.to_i)
-      result.send(:set_file_size, doc.root.elements['file_size'].text.to_i)
-      result.send(:set_status, doc.root.elements['status'].text.to_i)
+      result = xml_to_document(doc.root)
+
+      return result
+    end
+
+    # Performs a search to return all documents as defined by the options.
+    def self.find_all(options = {})
+      raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
+
+      result = Array.new
+      options[:output] = "summary"
+      params = post_parameters("index", options)
+      url = parameters_to_url("documents", params)
+      http = http_connection
+
+      request = Net::HTTP::Get.new(url, {'User-Agent' => Vuzit::Service.user_agent})
+      response = http.start { http.request(request) }
+
+      # TODO: Check if response.code.to_i != 200
+
+      begin
+        doc = REXML::Document.new(response.body)
+      rescue Exception => ex
+        raise Vuzit::ClientException.new("XML error: #{ex.message}")
+      end
+
+      if doc.root == nil
+        raise Vuzit::ClientException.new("No response from server");
+      end
+
+      code = doc.root.elements['code']
+      if code != nil
+        raise Vuzit::ClientException.new(doc.root.elements['msg'].text, code.text.to_i);
+      end
+
+      doc.root.elements.each("document") do |node|
+        result << xml_to_document(node)
+      end
 
       return result
     end
@@ -159,6 +189,23 @@ module Vuzit
 
     private
 
+    # Converts an XML object to a Document instance.
+    def self.xml_to_document(node)
+      result = Vuzit::Document.new
+
+      result.send(:set_id, node_value(node, 'web_id'))
+      result.send(:set_title, node_value(node, 'title'))
+      result.send(:set_subject, node_value(node, 'subject'))
+      result.send(:set_page_count, node_value_int(node, 'page_count'))
+      result.send(:set_page_width, node_value_int(node, 'width'))
+      result.send(:set_page_height, node_value_int(node, 'height'))
+      result.send(:set_file_size, node_value_int(node, 'file_size'))
+      result.send(:set_status, node_value_int(node, 'status'))
+      result.send(:set_excerpt, node_value(node, 'excerpt'))
+
+      return result
+    end
+
     # Private setter methods so that you can set the internal variables but 
     # not allow the setting of the public methods.  
     def set_id(value) @id = value; end
@@ -169,5 +216,6 @@ module Vuzit
     def set_page_width(value) @page_width = value; end
     def set_page_height(value) @page_height = value; end
     def set_file_size(value) @file_size = value; end
+    def set_excerpt(value) @excerpt = value; end
   end
 end

@@ -47,7 +47,7 @@ module Vuzit
     @@public_key = nil
     @@private_key = nil
     @@service_url = 'http://vuzit.com'
-    @@product_name = 'VuzitRuby Library 1.2.1'
+    @@product_name = 'VuzitRuby Library 2.0.0'
     @@user_agent = @@product_name
 
     # TODO: For all of the set variables do not allow nil values
@@ -103,7 +103,7 @@ module Vuzit
     # Returns The signature string.  NOTE: If you are going to use this 
     # with the Vuzit Javascript API then the value must be encoded with the 
     # CGI.escape function.  See the Wiki example for more information.  
-    def self.signature(service, id = '', time = nil, pages = '', label = '')
+    def self.signature(service, id = '', time = nil, options = {})
       if Vuzit::Service.public_key == nil || Vuzit::Service.private_key == nil
         raise Vuzit::ClientException.new("The public_key or private_key variables are nil")
       end
@@ -117,7 +117,14 @@ module Vuzit
         raise Vuzit::ClientException.new("Vuzit::Service.private_key not set")
       end
 
-      msg = "#{service}#{id}#{@@public_key}#{time}#{pages}#{label}"
+      msg = "#{service}#{id}#{@@public_key}#{time}"
+
+      ['included_pages', 'watermark', 'query'].each do |item|
+        if options.include?(item.to_sym)
+          msg << options[item.to_sym].to_s
+        end
+      end
+
       hmac = hmac_sha1(@@private_key, msg)
       result = Base64::encode64(hmac).chomp
 

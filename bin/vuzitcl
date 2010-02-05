@@ -83,6 +83,8 @@ def help_command(args)
     print_usage_delete
   when "upload"
     print_usage_upload
+  when "search"
+    print_usage_search
   else
     error("Unknown option: [#{command}]")
   end
@@ -104,6 +106,51 @@ def load_command(args)
     puts "height: #{doc.page_height}"
     puts "size: #{doc.file_size}"
     puts "status: #{doc.status}"
+  rescue Vuzit::ClientException => ex
+    puts "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+end
+
+# Performs the search command.  
+def search_command(args)
+  return if !global_parameters_load(args)
+
+  options = Hash.new
+  opts = OptionParser.new do |opts|
+    opts.on("-q", "--query [QUERY]", "") do |value|
+      options[:query] = value
+    end
+    
+    opts.on("-l", "--limit [LIMIT]", "") do |value|
+      options[:limit] = value
+    end
+
+    opts.on("-o", "--offset [OFFSET]", "") do |value|
+      options[:offset] = value
+    end
+  end
+
+  begin
+    opts.parse!(args)
+  rescue OptionParser::InvalidOption => e
+    e.recover(args)
+  end
+
+  begin
+    docs = Vuzit::Document.find_all(options)
+
+    docs.each do |doc|
+      puts "LOADED: #{doc.id}"
+      puts "title: #{doc.title}"
+      puts "subject: #{doc.subject}"
+      puts "pages: #{doc.page_count}"
+      puts "width: #{doc.page_width}"
+      puts "height: #{doc.page_height}"
+      puts "size: #{doc.file_size}"
+      puts "status: #{doc.status}"
+      puts "excerpt: #{doc.excerpt}"
+      puts ''
+    end
   rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end
@@ -166,9 +213,10 @@ def print_usage_general
   puts ""
   puts "Available commands:"
   puts ""
-  puts "  upload"
   puts "  delete"
   puts "  load"
+  puts "  upload"
+  puts "  search"
   puts "  help"
 end
 
@@ -190,9 +238,22 @@ def print_usage_load
   print_usage_global
 end
 
+# Prints the search options
+def print_usage_search
+  puts "search: Searches for documents within Vuzit."
+  puts "usage: search [OPTIONS]"
+  puts ""
+  puts "Valid options:"
+  puts "  -q, --query                    Query keywords"
+  puts "  -l, --limit                    Limits the results to a number"
+  puts "  -o, --offset                   Offsets the results at this number"
+  puts ""
+  print_usage_global
+end
+
 # Prints the upload options
 def print_usage_upload
-  puts "upload: Upload a file to Vuzit."
+  puts "upload: Upload a document to Vuzit."
   puts "usage: upload [OPTIONS] PATH"
   puts ""
   puts "Valid options:"
@@ -212,6 +273,8 @@ case command
     load_command(ARGV)
   when "delete"
     delete_command(ARGV)
+  when "search"
+    search_command(ARGV)
   when "upload"
     upload_command(ARGV)
   when "help"

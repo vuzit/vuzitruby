@@ -33,6 +33,23 @@ module Vuzit
       return result
     end
 
+    # Returns the value of a child node. 
+    def self.node_value(node, key)
+      result = nil
+
+      if node.elements[key] != nil
+        result = node.elements[key].text
+      end
+
+      return result
+    end
+
+    # Returns the integer value of a child node or -1 if none.
+    def self.node_value_int(node, key)
+      text = node_value(node, key)
+      return (text == nil) ? -1 : text.to_i
+    end
+
     # Returns a clean version of the parameters hash table.  
     def self.parameters_clean(params)
       result = Hash.new
@@ -80,13 +97,7 @@ module Vuzit
       timestamp = Time.now
       params[:timestamp] = timestamp.to_i # time since epoch
 
-      pages = ''
-      if params.has_key?(:included_pages)
-        pages = params[:included_pages]
-      end
-      label = ''
-
-      signature = Vuzit::Service::signature(method, id, timestamp, pages, label)
+      signature = Vuzit::Service::signature(method, id, timestamp, params)
       params[:signature] = signature
 
       return params
