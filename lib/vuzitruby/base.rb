@@ -68,17 +68,14 @@ module Vuzit
     end
 
     # Converts a set of parameters to a URL. 
-    def self.parameters_to_url(resource, params, id = nil, extension = 'xml')
+    def self.parameters_to_url(base_url, params)
       params = parameters_clean(params)
 
       # The Ruby HTTP library does not want the "http://domain.com" in the 
       # URL as most other libraries do.  If the service URL is provided
       # then less tolerant web servers like IIS will reject it. 
       result = ''
-      result << "/" << resource
-
-      result << ("/" << id) if !id.nil?
-      result << "." << extension << "?"
+      result << "/" << base_url << "?"
 
       params.each_pair do |key, value|
         result << (key.to_s << "=" << CGI.escape(value.to_s) << "&")

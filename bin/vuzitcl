@@ -81,6 +81,8 @@ def help_command(args)
     print_usage_load
   when "delete"
     print_usage_delete
+  when "page"
+    print_usage_page
   when "upload"
     print_usage_upload
   when "search"
@@ -106,6 +108,49 @@ def load_command(args)
     puts "height: #{doc.page_height}"
     puts "size: #{doc.file_size}"
     puts "status: #{doc.status}"
+    puts "Download URL: #{Vuzit::Document.download_url(id, 'pdf')}"
+  rescue Vuzit::ClientException => ex
+    puts "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+end
+
+# Performs the page command.  
+def page_command(args)
+  id = args.pop
+  return if !global_parameters_load(args)
+
+  options = Hash.new
+  opts = OptionParser.new do |opts|
+    opts.on("-i", "--included [PAGES]", "") do |value|
+      options[:included_pages] = value
+    end
+    
+    opts.on("-l", "--limit [LIMIT]", "") do |value|
+      options[:limit] = value
+    end
+
+    opts.on("-o", "--offset [OFFSET]", "") do |value|
+      options[:offset] = value
+    end
+  end
+
+  begin
+    opts.parse!(args)
+  rescue OptionParser::InvalidOption => e
+    e.recover(args)
+  end
+
+  begin
+    pages = Vuzit::Page.find_all(id, options)
+
+    pages.each do |page|
+      puts "Page: #{page.number}"
+      puts "#{page.text}"
+      puts ''
+    end
+
+    puts ""
+    puts "#{pages.length} pages found"
   rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end
@@ -151,6 +196,9 @@ def search_command(args)
       puts "excerpt: #{doc.excerpt}"
       puts ''
     end
+
+    puts ""
+    puts "#{docs.length} documents found"
   rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end
@@ -215,6 +263,7 @@ def print_usage_general
   puts ""
   puts "  delete"
   puts "  load"
+  puts "  page"
   puts "  upload"
   puts "  search"
   puts "  help"
@@ -234,6 +283,19 @@ def print_usage_load
   puts ""
   puts "Valid options:"
   puts "  none"
+  puts ""
+  print_usage_global
+end
+
+# Prints the search options
+def print_usage_page
+  puts "page: Loads page text for a document."
+  puts "usage: page [OPTIONS] WEB_ID"
+  puts ""
+  puts "Valid options:"
+  puts "  -i, --included                 Set range of pages to load (e.g '5,10-19')"
+  puts "  -l, --limit                    Limits the results to a number"
+  puts "  -o, --offset                   Offsets the results at this number"
   puts ""
   print_usage_global
 end
@@ -273,6 +335,8 @@ case command
     load_command(ARGV)
   when "delete"
     delete_command(ARGV)
+  when "page"
+    page_command(ARGV)
   when "search"
     search_command(ARGV)
   when "upload"

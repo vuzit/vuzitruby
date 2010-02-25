@@ -6,5 +6,6 @@ require 'rubygems'
 require 'vuzitruby/base'
 require 'vuzitruby/service'
 require 'vuzitruby/document'
+require 'vuzitruby/page'
 require 'vuzitruby/client_exception'
 

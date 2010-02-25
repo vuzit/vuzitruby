@@ -26,7 +26,7 @@ module Vuzit
     # a Vuzit::ClientException on failure.  It returns _true_ on success.  
     def self.destroy(id)
       params = post_parameters("destroy", nil, id)
-      url = parameters_to_url("documents", params, id)
+      url = parameters_to_url("documents/#{id}.xml", params)
       http = http_connection
 
       request = Net::HTTP::Delete.new(url, {'User-Agent' => Vuzit::Service.user_agent})
@@ -57,7 +57,7 @@ module Vuzit
     # Returns a download URL. 
     def self.download_url(id, file_extension)
       params = post_parameters("show", nil, id)
-      return parameters_to_url("documents", params, id, file_extension)
+      return parameters_to_url("documents/#{id}.#{file_extension}", params)
     end
 
     # Finds a document by the ID.  It throws a Vuzit::ClientException on failure. 
@@ -65,7 +65,7 @@ module Vuzit
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
       params = post_parameters("show", options, id)
-      url = parameters_to_url("documents", params, id)
+      url = parameters_to_url("documents/#{id}.xml", params)
       http = http_connection
 
       request = Net::HTTP::Get.new(url, {'User-Agent' => Vuzit::Service.user_agent})
@@ -103,9 +103,10 @@ module Vuzit
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
       result = Array.new
+      # Hard-code to summary format for now
       options[:output] = "summary"
       params = post_parameters("index", options)
-      url = parameters_to_url("documents", params)
+      url = parameters_to_url("documents.xml", params)
       http = http_connection
 
       request = Net::HTTP::Get.new(url, {'User-Agent' => Vuzit::Service.user_agent})
@@ -193,7 +194,12 @@ module Vuzit
     def self.xml_to_document(node)
       result = Vuzit::Document.new
 
-      result.send(:set_id, node_value(node, 'web_id'))
+      id = node_value(node, "web_id")
+      if id == nil
+        raise Vuzit::ClientException.new("Unknown error occurred: #{response_body}");
+      end
+
+      result.send(:set_id, id)
       result.send(:set_title, node_value(node, 'title'))
       result.send(:set_subject, node_value(node, 'subject'))
       result.send(:set_page_count, node_value_int(node, 'page_count'))
