@@ -83,6 +83,8 @@ def help_command(args)
     print_usage_delete
   when "page"
     print_usage_page
+  when "event"
+    print_usage_event
   when "upload"
     print_usage_upload
   when "search"
@@ -109,6 +111,70 @@ def load_command(args)
     puts "size: #{doc.file_size}"
     puts "status: #{doc.status}"
     puts "Download URL: #{Vuzit::Document.download_url(id, 'pdf')}"
+  rescue Vuzit::ClientException => ex
+    puts "Error occurred: #{ex.code}, #{ex.message}" 
+  end
+end
+
+# Performs the event command.  
+def event_command(args)
+  return if !global_parameters_load(args)
+
+  id = args.pop
+
+  options = Hash.new
+  opts = OptionParser.new do |opts|
+    opts.on("-e", "--event EVENT", "") do |value|
+      options[:event] = value
+    end
+    
+    opts.on("-c", "--custom CUSTOM", "") do |value|
+      options[:custom] = value
+    end
+
+    opts.on("-l", "--limit LIMIT", "") do |value|
+      options[:limit] = value
+    end
+
+    opts.on("-o", "--offset OFFSET", "") do |value|
+      options[:offset] = value
+    end
+  end
+
+  begin
+    opts.parse!(args)
+  rescue OptionParser::InvalidOption => e
+    e.recover(args)
+  end
+
+  begin
+    events = Vuzit::Event.find_all(id, options)
+
+    events.each do |event|
+      print "[#{event.requested_at.strftime('%Y-%m-%d %H:%M:%S')}] "
+
+      if event.event == "page_view"
+        print "#{event.duration}s - "
+      end
+      print "#{event.event}"
+
+      if event.page != -1
+        print ", p#{event.page}"
+      end
+
+      if !event.custom.nil?
+        print " (#{event.custom})"
+      end
+
+      if !event.referer.nil?
+        print " - #{event.referer[8, 7]}"
+      end
+      print " - #{event.remote_host}"
+      puts " - #{event.user_agent[0, 8]}"
+    end
+
+    puts ""
+    puts "#{events.length} events found"
   rescue Vuzit::ClientException => ex
     puts "Error occurred: #{ex.code}, #{ex.message}" 
   end
@@ -262,11 +328,26 @@ def print_usage_general
   puts "Available commands:"
   puts ""
   puts "  delete"
+  puts "  event"
   puts "  load"
   puts "  page"
   puts "  upload"
   puts "  search"
   puts "  help"
+end
+
+# Prints the event options
+def print_usage_event
+  puts "page: Loads document event analytics."
+  puts "usage: event [OPTIONS] WEB_ID"
+  puts ""
+  puts "Valid options:"
+  puts "  -e, --event                    Event type to load"
+  puts "  -c, --custom                   Custom value to load"
+  puts "  -l, --limit                    Limits the number of results"
+  puts "  -o, --offset                   Offset the results at this number"
+  puts ""
+  print_usage_global
 end
 
 # Prints the global options
@@ -335,6 +416,8 @@ case command
     load_command(ARGV)
   when "delete"
     delete_command(ARGV)
+  when "event"
+    event_command(ARGV)
   when "page"
     page_command(ARGV)
   when "search"

@@ -4,6 +4,7 @@ $:.unshift(File.dirname(__FILE__))
 require 'rubygems'
 
 require 'vuzitruby/base'
+require 'vuzitruby/event'
 require 'vuzitruby/service'
 require 'vuzitruby/document'
 require 'vuzitruby/page'
