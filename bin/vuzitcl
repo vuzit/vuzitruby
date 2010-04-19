@@ -239,6 +239,10 @@ def search_command(args)
     opts.on("-o", "--offset [OFFSET]", "") do |value|
       options[:offset] = value
     end
+
+    opts.on("-O", "--output [OUTPUT]", "") do |value|
+      options[:output] = value
+    end
   end
 
   begin
@@ -252,15 +256,18 @@ def search_command(args)
 
     docs.each do |doc|
       puts "LOADED: #{doc.id}"
-      puts "title: #{doc.title}"
-      puts "subject: #{doc.subject}"
-      puts "pages: #{doc.page_count}"
-      puts "width: #{doc.page_width}"
-      puts "height: #{doc.page_height}"
-      puts "size: #{doc.file_size}"
-      puts "status: #{doc.status}"
-      puts "excerpt: #{doc.excerpt}"
-      puts ''
+
+      if doc.page_count != -1
+        puts "title: #{doc.title}"
+        puts "subject: #{doc.subject}"
+        puts "pages: #{doc.page_count}"
+        puts "width: #{doc.page_width}"
+        puts "height: #{doc.page_height}"
+        puts "size: #{doc.file_size}"
+        puts "status: #{doc.status}"
+        puts "excerpt: #{doc.excerpt}"
+        puts ''
+      end
     end
 
     puts ""

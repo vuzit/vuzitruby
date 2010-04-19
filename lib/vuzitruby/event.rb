@@ -22,12 +22,13 @@ module Vuzit
     end
 
     # Performs a search to return all documents as defined by the options.
-    def self.find_all(web_id, options = {})
+    def self.find_all(id, options = {})
+      raise Vuzit::ClientException.new("id cannot be null") if id.nil?
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
       result = Array.new
-      params = post_parameters("show", options, web_id)
-      params[:web_id] = web_id
+      params = post_parameters("show", options, id)
+      params[:web_id] = id
       url = parameters_to_url("events.xml", params)
       http = http_connection
 

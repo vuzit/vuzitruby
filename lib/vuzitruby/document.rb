@@ -25,6 +25,8 @@ module Vuzit
     # Deletes a document by the ID.  Returns true if it succeeded.  It throws
     # a Vuzit::ClientException on failure.  It returns _true_ on success.  
     def self.destroy(id)
+      raise Vuzit::ClientException.new("id cannot be null") if id.nil?
+
       params = post_parameters("destroy", nil, id)
       url = parameters_to_url("documents/#{id}.xml", params)
       http = http_connection
@@ -56,13 +58,17 @@ module Vuzit
 
     # Returns a download URL. 
     def self.download_url(id, file_extension)
+      raise Vuzit::ClientException.new("id cannot be null") if id.nil?
+
       params = post_parameters("show", nil, id)
-      return parameters_to_url("documents/#{id}.#{file_extension}", params)
+      return Vuzit::Service.service_url + 
+             parameters_to_url("documents/#{id}.#{file_extension}", params)
     end
 
     # Finds a document by the ID.  It throws a Vuzit::ClientException on failure. 
     def self.find(id, options = {})
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
+      raise Vuzit::ClientException.new("id cannot be null") if id.nil?
 
       params = post_parameters("show", options, id)
       url = parameters_to_url("documents/#{id}.xml", params)
@@ -103,8 +109,6 @@ module Vuzit
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
       result = Array.new
-      # Hard-code to summary format for now
-      options[:output] = "summary"
       params = post_parameters("index", options)
       url = parameters_to_url("documents.xml", params)
       http = http_connection

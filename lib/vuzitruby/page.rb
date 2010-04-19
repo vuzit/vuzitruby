@@ -16,6 +16,7 @@ module Vuzit
 
     # Performs a search to return all documents as defined by the options.
     def self.find_all(id, options = {})
+      raise Vuzit::ClientException.new("id cannot be null") if id.nil?
       raise ArgumentError, "Options must be a hash" unless options.kind_of? Hash
 
       result = Array.new
