@@ -349,10 +349,10 @@ def print_usage_event
   puts "usage: event [OPTIONS] WEB_ID"
   puts ""
   puts "Valid options:"
-  puts "  -e, --event                    Event type to load"
-  puts "  -c, --custom                   Custom value to load"
-  puts "  -l, --limit                    Limits the number of results"
-  puts "  -o, --offset                   Offset the results at this number"
+  puts "  -e, --event         Event type to load"
+  puts "  -c, --custom        Custom value to load"
+  puts "  -l, --limit         Limits the number of results"
+  puts "  -o, --offset        Offset the results at this number"
   puts ""
   print_usage_global
 end
@@ -381,9 +381,9 @@ def print_usage_page
   puts "usage: page [OPTIONS] WEB_ID"
   puts ""
   puts "Valid options:"
-  puts "  -i, --included                 Set range of pages to load (e.g '5,10-19')"
-  puts "  -l, --limit                    Limits the results to a number"
-  puts "  -o, --offset                   Offsets the results at this number"
+  puts "  -i, --included      Set range of pages to load (e.g '5,10-19')"
+  puts "  -l, --limit         Limits the results to a number"
+  puts "  -o, --offset        Offsets the results at this number"
   puts ""
   print_usage_global
 end
@@ -394,9 +394,10 @@ def print_usage_search
   puts "usage: search [OPTIONS]"
   puts ""
   puts "Valid options:"
-  puts "  -q, --query                    Query keywords"
-  puts "  -l, --limit                    Limits the results to a number"
-  puts "  -o, --offset                   Offsets the results at this number"
+  puts "  -q, --query         Query keywords"
+  puts "  -o, --offset        Offsets the results at this number"
+  puts "  -l, --limit         Limits the results to a number"
+  puts "  -O, --output        Output more document info including title and excerpt"
   puts ""
   print_usage_global
 end

@@ -47,7 +47,7 @@ module Vuzit
     @@public_key = nil
     @@private_key = nil
     @@service_url = 'http://vuzit.com'
-    @@product_name = 'VuzitRuby Library 2.1.0'
+    @@product_name = 'VuzitRuby Library 2.1.1'
     @@user_agent = @@product_name
 
     # TODO: For all of the set variables do not allow nil values
